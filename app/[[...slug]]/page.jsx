@@ -20,6 +20,19 @@ function secureFormMarkup(body, slug) {
     .replace('Preparar solicitação LGPD', 'Enviar solicitação LGPD');
 }
 
+function optimizeImageMarkup(body) {
+  const replacements = {
+    'locacao-chiller.png': 'locacao-chiller.webp',
+    'projetos-engenharia.png': 'projetos-engenharia.webp',
+    'banco-sangue.png': 'banco-sangue.webp',
+    'qualidade-ar.png': 'qualidade-ar.webp',
+  };
+  return Object.entries(replacements).reduce(
+    (html, [original, optimized]) => html.replaceAll(`/assets/${original}`, `/assets/${optimized}`),
+    body,
+  );
+}
+
 async function getLegacyPage(slug) {
   try {
     const source = await readFile(pagePath(slug), 'utf8');
@@ -27,7 +40,7 @@ async function getLegacyPage(slug) {
     const description = source.match(/<meta name="description" content="([^"]*)"/i)?.[1];
     const body = source.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1];
     if (!body) return null;
-    return { title, description, body: secureFormMarkup(body, slug) };
+    return { title, description, body: secureFormMarkup(optimizeImageMarkup(body), slug) };
   } catch {
     return null;
   }
